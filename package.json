@@ -3,20 +3,61 @@
   "displayName": "vscode-lowcode-extension",
   "description": "",
   "version": "0.0.1",
+  "license": "UNLICENSED",
   "engines": {
-    "vscode": "^1.93.0"
+    "vscode": "^1.92.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onCommand:LowCode.setup",
+    "onCommand:LowCode.run",
+    "onCommand:LowCode.build",
+    "onCommand:LowCode.flash",
+    "onCommand:LowCode.monitor",
+    "onCommand:LowCode.setDevice"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "vscode-lowcode-extension.helloWorld",
-        "title": "Hello World"
+        "command": "LowCode.setup",
+        "title": "LowCode: Setup Environment"
+      },
+      {
+        "command": "LowCode.run",
+        "title": "LowCode: Build + Flash + Monitor"
+      },
+      {
+        "command": "LowCode.build",
+        "title": "LowCode: Build Product"
+      },
+      {
+        "command": "LowCode.flash",
+        "title": "LowCode: Flash"
+      },
+      {
+        "command": "LowCode.monitor",
+        "title": "LowCode: Start Console Logs"
+      },
+      {
+        "command": "LowCode.eraseflash",
+        "title": "LowCode: Erase flash"
+      },
+      {
+        "command": "LowCode.prebuiltbins",
+        "title": "LowCode: Flash Prebuilt Binaries"
+      },
+      {
+        "command": "LowCode.generateperdevicedata",
+        "title": "LowCode: Generate Per Device Data and Flash"
+      },
+      {
+        "command": "LowCode.selectproduct",
+        "title": "LowCode: Select Product"
       }
+
     ]
   },
   "scripts": {
@@ -30,6 +71,9 @@
     "lint": "eslint src --ext ts",
     "test": "vscode-test"
   },
+  "files": [
+    "src/pre-requisites/**"
+  ],
   "devDependencies": {
     "@types/vscode": "^1.93.0",
     "@types/mocha": "^10.0.7",
@@ -43,5 +87,8 @@
     "webpack-cli": "^5.1.4",
     "@vscode/test-cli": "^0.0.9",
     "@vscode/test-electron": "^2.4.0"
-  }
+  },
+  "extensionDependencies": [
+    "espressif.esp-idf-extension"
+  ]
 }

@@ -5,3 +5,4 @@ node_modules
 *.vsix
 .eslintrc.json
 .vscode/
+src/build-setup/
