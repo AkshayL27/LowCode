@@ -32,6 +32,6 @@ export class Logger {
     }
 
     public show(): void {
-        this.outputChannel.show();
+        this.outputChannel.show(true);
     }
 }

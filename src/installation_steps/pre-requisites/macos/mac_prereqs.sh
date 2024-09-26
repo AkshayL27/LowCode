@@ -1,3 +1,4 @@
+echo "Install Pre-requisite dependencies for ESP IDF"
 if ! command -v brew &> /dev/null
 then
     echo "Homebrew not found. Installing..."

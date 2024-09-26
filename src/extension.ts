@@ -1,7 +1,10 @@
 import * as vscode from 'vscode';
-import { installDependencies } from './pre_reqs';
-import { installIDFthruExt, get_idf_location, isWeb } from './idf_install';
+import { get_idf_location } from './installation_steps/idf_install';
+import { install_all_requirements } from './installation_steps/final_setup';
 
+function isWeb(): boolean {
+    return vscode.env.remoteName === "vscode-web";
+}
 export function activate(context: vscode.ExtensionContext) {
 
 	const espIdfExtension = vscode.extensions.getExtension("espressif.esp-idf-extension");
@@ -19,10 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
 	}
 
 	const setupCommand = vscode.commands.registerCommand('LowCode.setup', () => {
-		installDependencies(context);
-		vscode.window.showInformationMessage("Prerequisites have been installed");
-		installIDFthruExt(context);
-		vscode.window.showInformationMessage("ESP IDF has been installed successfully");
+		install_all_requirements();
 	});
 	context.subscriptions.push(setupCommand);
 
@@ -31,6 +31,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	context.subscriptions.push(setDeviceCommand);
 
+	//ToDO: Fix: all commands happen at the same time
 	const runCommand = vscode.commands.registerCommand('LowCode.run', async () => {
 		if (!get_idf_location) {
 			vscode.commands.executeCommand('LowCode.setup');
@@ -48,39 +49,104 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	context.subscriptions.push(runCommand);
 
-	const buildDevice = vscode.commands.registerCommand("LowCode.build", async () => {
-		vscode.workspace.saveAll();
-		if (context.workspaceState.get("LowCode_target") !== undefined) {
-			await vscode.commands.executeCommand("espIdf.setTarget", "esp32c6");
-			context.workspaceState.update("LowCode_target", "esp32c6");
-		}
-		await vscode.commands.executeCommand("espIdf.buildDevice");
+	const buildDevice = vscode.commands.registerCommand("LowCode.build", async (): Promise<void> => {
+		return new Promise<void>(async (resolve, reject) => {
+			try {
+				vscode.workspace.saveAll();
+				if (!get_idf_location) {
+					vscode.commands.executeCommand('LowCode.setup');
+				}
+				if (context.workspaceState.get("LowCode_target") !== undefined) {
+					await vscode.commands.executeCommand("espIdf.setTarget", "esp32c6");
+					context.workspaceState.update("LowCode_target", "esp32c6");
+				}
+				vscode.commands.executeCommand("espIdf.buildDevice")
+					.then(() => resolve());
+			}
+			catch (error) {
+				vscode.window.showErrorMessage("Something went wrong during build.\nCheck if you have installed esp idf extension.");
+				reject(error);
+			}
+		});
 	});
 	context.subscriptions.push(buildDevice);
 
-	const flashDevice = vscode.commands.registerCommand( "LowCode.flash", async () => {
-		vscode.window.showInformationMessage("Entering flash mode...");
-		if (isWeb()) {
-			vscode.window.showInformationMessage(`
-				Flashing through LowCode is not supported in a web browser.\n
-				Please use LowCode web extension instead`
-			);
-		} else {
-			await vscode.commands.executeCommand("espIdf.flashDevice");
-		}
+	const flashDevice = vscode.commands.registerCommand( "LowCode.flash", async (): Promise<void> => {
+		return new Promise<void>(async (resolve, reject) => {
+			if (isWeb()) {
+				try {
+					const espIdfWebExtension = vscode.extensions.getExtension("espressif.esp-idf-web");
+					if (!espIdfWebExtension) {
+						vscode.window.showErrorMessage(
+                            'Required Extension ESP Web IDF extension is not installed.',
+                            { modal: true },
+                            'Install Now'
+                        ).then(selection => {
+                            if (selection === 'Install Now') {
+                                vscode.commands.executeCommand("workbench.extensions.search", "espressif.esp-idf-web");
+                            }
+                        });
+                    }
+					vscode.commands.executeCommand("esp-idf-web.flash")		// Change to our web extension before release
+					.then(() => resolve());
+				}
+				catch (error) {
+                    vscode.window.showErrorMessage("Something went wrong during flashing.\nCheck if you have installed esp web idf extension.");
+                    reject(error);
+                }
+			} else {
+				try {
+					if (!get_idf_location) {
+						vscode.commands.executeCommand('LowCode.setup');
+					}
+					await vscode.commands.executeCommand("espIdf.flashDevice")
+						.then(() => resolve());
+				}
+				catch (error) {
+                    vscode.window.showErrorMessage("Something went wrong during flashing.\nCheck if you have installed esp idf extension.");
+                    reject(error);
+                }
+			}
+		});
 	});
 	context.subscriptions.push(flashDevice);
 
-	const monitorDevice = vscode.commands.registerCommand("LowCode.monitor", async () => {
-		vscode.window.showInformationMessage("Entering monitor mode...");
-		if (isWeb()) {
-			vscode.window.showInformationMessage(`
-                Monitoring through LowCode is not supported in a web browser.\n
-                Please use LowCode web extension instead`
-            );
-		} else {
-			await vscode.commands.executeCommand("espIdf.monitorDevice");
-		}
+	const monitorDevice = vscode.commands.registerCommand("LowCode.monitor", async (): Promise<void> => {
+		return new Promise<void>(async (resolve, reject) => {
+			if (isWeb()) {
+				try {
+					const espIdfWebExtension = vscode.extensions.getExtension("espressif.esp-idf-web");
+					if (!espIdfWebExtension) {
+						vscode.window.showErrorMessage(
+                            'Required Extension ESP Web IDF extension is not installed.',
+                            { modal: true },
+                            'Install Now'
+                        ).then(selection => {
+							if (selection === 'Install Now') {
+                                vscode.commands.executeCommand("workbench.extensions.search", "espressif.esp-idf-web");
+                            }
+						});
+					}
+                    await vscode.commands.executeCommand("esp-idf-web.monitor")        // Change to our web extension before release
+                    .then(() => resolve());
+                }
+                catch (error) {
+                    vscode.window.showErrorMessage("Something went wrong during monitoring.\nCheck if you have installed esp web idf extension.");
+                    reject(error);
+                }
+			} 
+			else {
+				try {
+					get_idf_location();
+					await vscode.commands.executeCommand("espIdf.monitorDevice")
+						.then(() => resolve());
+				}
+				catch (error) {
+                    vscode.window.showErrorMessage("Something went wrong during monitoring.\nCheck if you have installed esp idf extension.");
+                    reject(error);
+                }
+			}
+		});
 	});
 	context.subscriptions.push(monitorDevice);
 
@@ -89,6 +155,24 @@ export function activate(context: vscode.ExtensionContext) {
 		context.workspaceState.update("LowCode_target", undefined);
 	});
 	context.subscriptions.push(eraseflashDevice);
+
+	const preBuildBinariesFlash = vscode.commands.registerCommand("prevuildbinariesflash", () => {
+		//ToDO
+		vscode.window.showInformationMessage("Command not supported yet");
+	});
+
+	const generatePerDeviceData = vscode.commands.registerCommand("generateperdevicedata", () => {
+		//ToDO
+		vscode.window.showInformationMessage("Command not supported yet");
+	});
+
+	const selectProduct = vscode.commands.registerCommand("selectproduct", () => {
+		const idf_location: string|undefined = get_idf_location();
+		if (!idf_location) {
+			vscode.window.showInformationMessage("IDF location not found");
+		}
+	});
+
 
 	let statusBarItemRun = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
 	statusBarItemRun.command = 'LowCode.run';

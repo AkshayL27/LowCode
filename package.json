@@ -46,7 +46,7 @@
         "title": "LowCode: Erase flash"
       },
       {
-        "command": "LowCode.prebuiltbins",
+        "command": "LowCode.prebuiltbinariesflash",
         "title": "LowCode: Flash Prebuilt Binaries"
       },
       {
@@ -72,7 +72,7 @@
     "test": "vscode-test"
   },
   "files": [
-    "src/pre-requisites/**"
+    "src/installation_steps/**"
   ],
   "devDependencies": {
     "@types/vscode": "^1.93.0",
