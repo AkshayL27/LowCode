@@ -2,16 +2,13 @@ import { spawn } from "child_process";
 import path from "path";
 import { Logger } from "./../Logger";
 
-const amp_location: string = path.join("$HOME", "esp", "esp-amp");
 export function installAMP(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         let logger = Logger.getInstance();
         logger.show();
-        if (!amp_location) {
-            reject(new Error("AMP location not found"));
-            return;
-        }
-        const installProcess = spawn("sh", [path.join(__dirname, "build-setup", "install_amp.sh"), amp_location]);
+        const scriptPath = path.join(__dirname, "build-setup", "install_amp.sh");
+        logger.info(`Executing script at: ${scriptPath}`);
+        const installProcess = spawn("sh", [scriptPath]);
         installProcess.stdout.on("data", (data) => {
             logger.info(data);
         });

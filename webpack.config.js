@@ -3,6 +3,7 @@
 'use strict';
 
 const path = require('path');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 //@ts-check
 /** @typedef {import('webpack').Configuration} WebpackConfig **/
@@ -40,6 +41,17 @@ const extensionConfig = {
       }
     ]
   },
+  plugins: [
+    new CopyWebpackPlugin({
+        patterns: [
+            { from: 'src/installation_steps/build-setup/install_matter.sh', to: 'build-setup/install_matter.sh' },
+            { from: 'src/installation_steps/build-setup/install_amp.sh', to: 'build-setup/install_amp.sh'},
+            { from: 'src/installation_steps/build-setup/install_idf.sh', to: 'build-setup/install_idf.sh'},
+            { from: 'src/installation_steps/pre-requisites/linux/ubuntu_prereqs.sh', to: 'pre-requisites/linux/ubuntu_prereqs.sh'},
+            { from: 'src/installation_steps/pre-requisites/macos/mac_prereqs.sh', to: 'pre-requisites/macos/mac_prereqs.sh'},
+        ],
+    }),
+  ],
   devtool: 'nosources-source-map',
   infrastructureLogging: {
     level: "log", // enables logging required for problem matchers

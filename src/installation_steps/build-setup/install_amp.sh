@@ -1,7 +1,10 @@
 echo "Cloning ESP Amp"
+TARGET_DIR="$HOME/esp/esp-amp"
+echo "Cloning to: $TARGET_DIR"
+mkdir -p "$TARGET_DIR" 
 echo "install_amp.sh shell script will error unless it finds the release version."
 echo "If it finds the release version please remove these 2 lines."
-git clone -b development https://github.com/espressif/esp-amp.git $1
-cd $1
-export ESP_AMP_PATH=$1
+git clone -b development https://github.com/espressif/esp-amp.git $echo "Cloning to: $TARGET_DIR"
+cd $echo "Cloning to: $TARGET_DIR"
+export ESP_AMP_PATH=$echo "Cloning to: $TARGET_DIR"
 git submodule update --init --recursive

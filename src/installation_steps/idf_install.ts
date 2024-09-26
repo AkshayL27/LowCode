@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { spawn } from 'child_process';
 import * as path from 'path';
 import { Logger } from '../Logger';
-import { installDependencies } from './pre_reqs_for_IDF';
+import { installDependencies } from './pre_reqs_for_idf';
 
 let idf_location: string | undefined;
 
@@ -47,7 +47,7 @@ export async function installIDFthruExt() {
 
 export function completeIDFInstallation(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-        installDependencies().catch((err) => {
+        installDependencies().catch((err: any) => {
             reject(err);
         });
         let logger = Logger.getInstance();
@@ -56,7 +56,9 @@ export function completeIDFInstallation(): Promise<void> {
             reject(new Error("IDF location not found"));
             return;
         }
-        const installProcess = spawn("sh", [path.join(__dirname, "build-setup", "install_idf.sh"), idf_location]);
+        const scriptPath = path.join(__dirname, "build-setup", "install_idf.sh");
+        logger.info(`Executing script at: ${scriptPath}`);
+        const installProcess = spawn("sh", [scriptPath]);
         installProcess.stdout.on("data", (data) => {
             logger.info(data);
         });
