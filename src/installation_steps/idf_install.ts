@@ -37,10 +37,10 @@ export function get_idf_location(): string | undefined {
 
 export async function installIDFthruExt() {
     const command = 'espIdf.setup.start';
-    vscode.commands.executeCommand(command);
+    await installDependencies();
     vscode.window.showInformationMessage('ESP-IDF setup has been initialized please complete the installation process using Express installation');
+    vscode.commands.executeCommand(command);
     checkForInstallationCompletion();
-    installDependencies();
 }
 
 
