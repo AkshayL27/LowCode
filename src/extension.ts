@@ -2,6 +2,8 @@ import * as vscode from 'vscode';
 import { get_idf_location } from './installation_steps/idf_install';
 import { install_all_requirements } from './installation_steps/final_setup';
 
+import { get_product_list } from './example_selection';
+
 function isWeb(): boolean {
     return vscode.env.remoteName === "vscode-web";
 }
@@ -150,7 +152,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	context.subscriptions.push(monitorDevice);
 
-	const eraseflashDevice = vscode.commands.registerCommand("LowCode.eraseflash", () {
+	const eraseflashDevice = vscode.commands.registerCommand("LowCode.eraseflash", () => {
 		if (isWeb()) {
 			vscode.window.showInformationMessage("Erase flash device not supported on vscode web extension");
 		}
@@ -173,8 +175,28 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	context.subscriptions.push(generatePerDeviceData);
 
-	const selectProduct = vscode.commands.registerCommand("selectproduct", () => {
-		//ToDo
+	const selectProduct = vscode.commands.registerCommand("LowCode.selectproduct", () => {
+		return new Promise<void>(async (resolve, reject) => {
+            try {
+                const products = await get_product_list();
+                if (products.length === 0) {
+                    vscode.window.showErrorMessage("No products found in the ESP-IDF registry");
+                    reject();
+                }
+                const selectedProduct = await vscode.window.showQuickPick(products, { placeHolder: "Select a product" });
+                if (selectedProduct) {
+                    vscode.window.showInformationMessage("Product selected: "+ selectedProduct);
+                    resolve();
+                }
+                else {
+                    reject();
+                }
+            }
+            catch (error) {
+                vscode.window.showErrorMessage("Something went wrong while selecting product.\nCheck your internet connection and try again.");
+                reject(error);
+            }
+        });
 
 	});
 	context.subscriptions.push(selectProduct);
