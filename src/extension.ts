@@ -150,8 +150,13 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	context.subscriptions.push(monitorDevice);
 
-	const eraseflashDevice = vscode.commands.registerCommand("LowCode.eraseflash", async () => {
-		vscode.commands.executeCommand("espIdf.eraseFlash");
+	const eraseflashDevice = vscode.commands.registerCommand("LowCode.eraseflash", () {
+		if (isWeb()) {
+			vscode.window.showInformationMessage("Erase flash device not supported on vscode web extension");
+		}
+		else {
+			vscode.commands.executeCommand("espIdf.eraseFlash");
+		}
 		context.workspaceState.update("LowCode_target", undefined);
 	});
 	context.subscriptions.push(eraseflashDevice);
@@ -160,26 +165,19 @@ export function activate(context: vscode.ExtensionContext) {
 		//ToDO
 		vscode.window.showInformationMessage("Command not supported yet");
 	});
+	context.subscriptions.push(preBuildBinariesFlash);
 
 	const generatePerDeviceData = vscode.commands.registerCommand("generateperdevicedata", () => {
 		//ToDO
 		vscode.window.showInformationMessage("Command not supported yet");
 	});
+	context.subscriptions.push(generatePerDeviceData);
 
 	const selectProduct = vscode.commands.registerCommand("selectproduct", () => {
-		const idf_location: string|undefined = get_idf_location();
-		if (!idf_location) {
-			vscode.window.showInformationMessage("IDF location not found");
-		}
+		//ToDo
+
 	});
-
-
-	let statusBarItemRun = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-	statusBarItemRun.command = 'LowCode.run';
-	statusBarItemRun.text = "$(zap)LowCode Run";
-	statusBarItemRun.show();
-	statusBarItemRun.tooltip = "Build Flash Monitor ESP Device";
-	context.subscriptions.push(statusBarItemRun);
+	context.subscriptions.push(selectProduct);
 
 	let statusBarItemBuild = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 90);
 	statusBarItemBuild.command = 'LowCode.build';
@@ -188,26 +186,35 @@ export function activate(context: vscode.ExtensionContext) {
 	statusBarItemBuild.tooltip = "Build ESP Device";
 	context.subscriptions.push(statusBarItemBuild);
 
-	let statusBarItemFlash = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 80);
-	statusBarItemFlash.command = 'LowCode.flash';
-	statusBarItemFlash.text = "$(lightbulb)Flash";
-	statusBarItemFlash.show();
-	statusBarItemFlash.tooltip = "Flash ESP Device";
-	context.subscriptions.push(statusBarItemFlash);
+	if (!isWeb()) {
+		let statusBarItemRun = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+		statusBarItemRun.command = 'LowCode.run';
+		statusBarItemRun.text = "$(zap)LowCode Run";
+		statusBarItemRun.show();
+		statusBarItemRun.tooltip = "Build Flash Monitor ESP Device";
+		context.subscriptions.push(statusBarItemRun);
 
-	let statusBarItemMonitor = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 70);
-	statusBarItemMonitor.command = 'LowCode.monitor';
-	statusBarItemMonitor.text = "$(arrow-swap)Monitor";
-	statusBarItemMonitor.show();
-	statusBarItemMonitor.tooltip = "Monitor ESP Device";
-	context.subscriptions.push(statusBarItemMonitor);
+		let statusBarItemFlash = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 80);
+		statusBarItemFlash.command = 'LowCode.flash';
+		statusBarItemFlash.text = "$(lightbulb)Flash";
+		statusBarItemFlash.show();
+		statusBarItemFlash.tooltip = "Flash ESP Device";
+		context.subscriptions.push(statusBarItemFlash);
 
-	let statusBarItemErase = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 60);
-	statusBarItemErase.command = 'LowCode.eraseflash';
-	statusBarItemErase.text = "$(trash)";
-	statusBarItemErase.show();
-	statusBarItemErase.tooltip = "Erase Flash on ESP";
-	context.subscriptions.push(statusBarItemErase);
+		let statusBarItemMonitor = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 70);
+		statusBarItemMonitor.command = 'LowCode.monitor';
+		statusBarItemMonitor.text = "$(arrow-swap)Monitor";
+		statusBarItemMonitor.show();
+		statusBarItemMonitor.tooltip = "Monitor ESP Device";
+		context.subscriptions.push(statusBarItemMonitor);
+
+		let statusBarItemErase = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 60);
+		statusBarItemErase.command = 'LowCode.eraseflash';
+		statusBarItemErase.text = "$(trash)";
+		statusBarItemErase.show();
+		statusBarItemErase.tooltip = "Erase Flash on ESP";
+		context.subscriptions.push(statusBarItemErase);
+	}
 }
 
 //export function deactivate() {}

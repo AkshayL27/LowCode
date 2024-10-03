@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { spawn } from 'child_process';
 import * as path from 'path';
 import { Logger } from '../Logger';
-import { installDependencies } from './pre_reqs_for_idf';
+import { installDependencies } from './prereqs_for_idf';
 
 let idf_location: string | undefined;
 

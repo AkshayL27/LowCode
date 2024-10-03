@@ -8,6 +8,6 @@ export ESP_MATTER_PATH=$TARGET_DIR
 git submodule update --init --depth 1
 cd connectedhomeip/connectedhomeip
 ./scripts/checkout_submodules.py --platform esp32 linux --shallow
-cd ../..
+cd $TARGET_DIR
 ./install.sh
 . ./export.sh

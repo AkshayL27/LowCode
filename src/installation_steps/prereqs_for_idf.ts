@@ -14,7 +14,7 @@ export async function installDependencies(): Promise<void> {
                 scriptPath = path.join(__dirname, 'pre-requisites', 'macos', 'mac_prereqs.sh');
                 break;
             case 'linux':
-                scriptPath = path.join(__dirname, 'pre-requisites', 'ubuntu', 'ubuntu_prereqs.sh');
+                scriptPath = path.join(__dirname, 'pre-requisites', 'linux', 'ubuntu_prereqs.sh');
                 break;
             default:
                 logger.error(`Unsupported operating system: ${platform}`);
