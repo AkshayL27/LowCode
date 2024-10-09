@@ -49,6 +49,7 @@ const extensionConfig = {
             { from: 'src/installation_steps/build-setup/install_idf.sh', to: 'build-setup/install_idf.sh'},
             { from: 'src/installation_steps/pre-requisites/linux/ubuntu_prereqs.sh', to: 'pre-requisites/linux/ubuntu_prereqs.sh'},
             { from: 'src/installation_steps/pre-requisites/macos/mac_prereqs.sh', to: 'pre-requisites/macos/mac_prereqs.sh'},
+            { from: 'src/pre_built_binaries/hello.sh', to: 'pre_built_binaries/hello.sh'},
         ],
     }),
   ],

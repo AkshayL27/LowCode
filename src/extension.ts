@@ -3,6 +3,9 @@ import { get_idf_location } from './installation_steps/idf_install';
 import { install_all_requirements } from './installation_steps/final_setup';
 
 import { get_product_list } from './example_selection';
+import { spawn } from 'child_process';
+import path from 'path';
+import { Logger } from './Logger';
 
 function isWeb(): boolean {
     return vscode.env.remoteName === "vscode-web";
@@ -163,8 +166,18 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	context.subscriptions.push(eraseflashDevice);
 
-	const preBuildBinariesFlash = vscode.commands.registerCommand("prevuildbinariesflash", () => {
+	const preBuildBinariesFlash = vscode.commands.registerCommand("LowCode.prebuiltbinariesflash", () => {
 		//ToDO
+		const shellpath = path.join(__dirname, "pre_built_binaries", "hello.sh");
+		const shellrun = spawn("sh", [shellpath]);
+		const logger = Logger.getInstance();
+		logger.show();
+		shellrun.stdout.on("data", (data) => {
+			logger.info(data);
+        });
+		shellrun.stderr.on("data", (data) => {
+			logger.error(data);
+        });	
 		vscode.window.showInformationMessage("Command not supported yet");
 	});
 	context.subscriptions.push(preBuildBinariesFlash);
